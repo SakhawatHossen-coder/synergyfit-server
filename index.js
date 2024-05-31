@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-// const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 // const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -29,7 +29,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const userCollection = client.db("fitness-app").collection("users");
-
+    //jwt
+    app.post("/jwt", async (req, res) => {
+      let user = req.body;
+      const token = jwt.sign(user, process.env.TOKEN_KEY, { expiresIn: "1h" });
+      res.send({token})
+    });
     //
     app.post("/user", async (req, res) => {
       const newUser = req.body;
@@ -57,5 +62,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("fitness server runnning ---",port);
+  console.log("fitness server runnning ---", port);
 });
