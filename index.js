@@ -8,7 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: ["https://wandering-fork.netlify.app", "http://localhost:5173"],
+  origin: ["https://wandering-fork.netlify.app", "http://localhost:5174"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -33,6 +33,11 @@ async function run() {
     //
     app.post("/user", async (req, res) => {
       const newUser = req.body;
+      const query = { email: newUser?.email };
+      let isExist = await userCollection.findOne(query);
+      if (isExist) {
+        return res.send({ message: "user already exist", indsertedId: null });
+      }
       const result = await userCollection.insertOne(newUser);
       res.send(result);
     });
@@ -52,5 +57,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("fitness server runnning ---");
+  console.log("fitness server runnning ---",port);
 });
