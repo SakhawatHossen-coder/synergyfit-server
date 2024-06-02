@@ -8,7 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: ["https://wandering-fork.netlify.app", "http://localhost:5174"],
+  origin: ["https://wandering-fork.netlify.app", "http://localhost:5173"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -28,12 +28,14 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const userCollection = client.db("fitness-app").collection("users");
+    const db = client.db("fitness-app");
+    const userCollection = db.collection("users");
+    const trainerCollection = db.collection("trainers");
     //jwt
     app.post("/jwt", async (req, res) => {
       let user = req.body;
       const token = jwt.sign(user, process.env.TOKEN_KEY, { expiresIn: "1h" });
-      res.send({token})
+      res.send({ token });
     });
     //
     app.post("/user", async (req, res) => {
@@ -46,6 +48,12 @@ async function run() {
       const result = await userCollection.insertOne(newUser);
       res.send(result);
     });
+    //trainer in db
+    app.post('/trainer',async (req,res)=>{
+          const newTrainer = req.body;
+          const result = await trainerCollection.insertOne(newTrainer);
+          res.send(result);
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
