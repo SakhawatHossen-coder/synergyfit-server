@@ -37,6 +37,21 @@ async function run() {
       const token = jwt.sign(user, process.env.TOKEN_KEY, { expiresIn: "1h" });
       res.send({ token });
     });
+    //verify Token
+    const verifyToken = (req, res, next) => {
+      console.log("inside verify token", req.headers.authorization);
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: "Unauthorize Access!" });
+      }
+      let token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.TOKEN_KEY, (err, decode) => {
+        if (err) {
+          return res.status(401).send({ message: "Unauthorize Access!" });
+        }
+        req.decode;
+        next();
+      });
+    };
     //
     app.post("/user", async (req, res) => {
       const newUser = req.body;
@@ -49,11 +64,15 @@ async function run() {
       res.send(result);
     });
     //trainer in db
-    app.post('/trainer',async (req,res)=>{
-          const newTrainer = req.body;
-          const result = await trainerCollection.insertOne(newTrainer);
-          res.send(result);
-    })
+    app.post("/trainer", async (req, res) => {
+      const newTrainer = req.body;
+      const result = await trainerCollection.insertOne(newTrainer);
+      res.send(result);
+    });
+    app.get("/trainer", async (req, res) => {
+      const result = await trainerCollection.find().toArray();
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
