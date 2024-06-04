@@ -31,6 +31,7 @@ async function run() {
     const db = client.db("fitness-app");
     const userCollection = db.collection("users");
     const trainerCollection = db.collection("trainers");
+    const gymtrainerCollection = db.collection("gymtrainers");
     const newsltterCollection = db.collection("newsletters");
     //jwt
     app.post("/jwt", async (req, res) => {
@@ -68,6 +69,18 @@ async function run() {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
+     //update a user role
+    app.patch('/trainer/update/:email', async (req, res) => {
+      const email = req.params.email
+      const user = req.body
+      const query = { email }
+      const updateDoc = {
+        $set: { ...user, timestamp: Date.now() },
+      }
+      const result = await trainerCollection.updateOne(query, updateDoc)
+      res.send(result)
+    })
+
     //trainer in db
     app.post("/trainer", async (req, res) => {
       const newTrainer = req.body;
