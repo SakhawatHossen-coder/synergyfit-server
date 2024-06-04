@@ -81,7 +81,12 @@ async function run() {
     //newsletter post
     app.post("/newsletter", async (req, res) => {
       const newsLetter = req.body;
-      const result = await newsLetter.insertOne(newsLetter);
+      const result = await newsltterCollection.insertOne(newsLetter);
+      res.send(result);
+    });
+    //newsletter get
+    app.get("/newsletter", async (req, res) => {
+      const result = await newsltterCollection.find().toArray();
       res.send(result);
     });
     app.get("/trainer/:id", async (req, res) => {
