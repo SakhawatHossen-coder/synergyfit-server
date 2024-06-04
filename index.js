@@ -31,6 +31,7 @@ async function run() {
     const db = client.db("fitness-app");
     const userCollection = db.collection("users");
     const trainerCollection = db.collection("trainers");
+    const newsltterCollection = db.collection("newsletters");
     //jwt
     app.post("/jwt", async (req, res) => {
       let user = req.body;
@@ -75,6 +76,12 @@ async function run() {
     });
     app.get("/trainer", async (req, res) => {
       const result = await trainerCollection.find().toArray();
+      res.send(result);
+    });
+    //newsletter post
+    app.post("/newsletter", async (req, res) => {
+      const newsLetter = req.body;
+      const result = await newsLetter.insertOne(newsLetter);
       res.send(result);
     });
     app.get("/trainer/:id", async (req, res) => {
