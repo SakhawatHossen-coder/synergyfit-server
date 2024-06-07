@@ -33,6 +33,8 @@ async function run() {
     const trainerCollection = db.collection("trainers");
     const gymtrainerCollection = db.collection("gymtrainers");
     const newsltterCollection = db.collection("newsletters");
+    const classCollection = db.collection("classes");
+
     //jwt
     app.post("/jwt", async (req, res) => {
       let user = req.body;
@@ -69,17 +71,23 @@ async function run() {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
-     //update a user role
-    app.patch('/trainer/update/:email', async (req, res) => {
-      const email = req.params.email
-      const user = req.body
-      const query = { email }
-      const updateDoc = {
-        $set: { ...user, timestamp: Date.now() },
-      }
-      const result = await trainerCollection.updateOne(query, updateDoc)
-      res.send(result)
-    })
+    //gym classes
+    app.post("/classes", async (req, res) => {
+      const newClasses = req.body;
+      const result = await classCollection.insertOne(newClasses);
+      res.send(result);
+    });
+    //update a user role
+    // app.patch('/trainer/update/:email', async (req, res) => {
+    //   const email = req.params.email
+    //   const user = req.body
+    //   const query = { email }
+    //   const updateDoc = {
+    //     $set: { ...user, timestamp: Date.now() },
+    //   }
+    //   const result = await gymtrainerCollection.updateOne(query, updateDoc)
+    //   res.send(result)
+    // })
 
     //trainer in db
     app.post("/trainer", async (req, res) => {
@@ -106,6 +114,23 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await trainerCollection.findOne(query);
+      res.send(result);
+    });
+    // update a trainer role
+    app.patch("/trainer/update/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const query = { email };
+      const updateDoc = {
+        $set: { ...user, timestamp: Date.now() },
+      };
+      const result = await trainerCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+    app.delete("/trainer/delete/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const result = await trainerCollection.deleteOne(query);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
