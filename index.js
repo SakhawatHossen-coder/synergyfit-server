@@ -30,6 +30,7 @@ async function run() {
   try {
     const db = client.db("fitness-app");
     const userCollection = db.collection("users");
+    const postCollection = db.collection("posts");
     const trainerCollection = db.collection("trainers");
     const gymtrainerCollection = db.collection("gymtrainers");
     const newsltterCollection = db.collection("newsletters");
@@ -77,6 +78,10 @@ async function run() {
       const result = await classCollection.insertOne(newClasses);
       res.send(result);
     });
+    app.get("/class", async (req, res) => {
+      const result = await classCollection.find().toArray();
+      res.send(result);
+    });
     //update a user role
     // app.patch('/trainer/update/:email', async (req, res) => {
     //   const email = req.params.email
@@ -108,6 +113,11 @@ async function run() {
     //newsletter get
     app.get("/newsletter", async (req, res) => {
       const result = await newsltterCollection.find().toArray();
+      res.send(result);
+    });
+    app.post("/forumpost", async (req, res) => {
+      const post = req.body;
+      const result = await postCollection.insertOne(post);
       res.send(result);
     });
     app.get("/trainer/:id", async (req, res) => {
