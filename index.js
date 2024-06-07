@@ -120,6 +120,10 @@ async function run() {
       const result = await postCollection.insertOne(post);
       res.send(result);
     });
+    app.get("/post", async (req, res) => {
+      const result = await postCollection.find().toArray();
+      res.send(result);
+    });
     app.get("/trainer/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
