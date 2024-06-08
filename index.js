@@ -8,7 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: ["https://wandering-fork.netlify.app", "http://localhost:5173"],
+  origin: ["https://synergy-fit.netlify.app", "http://localhost:5173"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -100,7 +100,7 @@ async function run() {
       const result = await trainerCollection.insertOne(newTrainer);
       res.send(result);
     });
-    app.get("/trainer", async (req, res) => {
+    app.get("/trainer", verifyToken, async (req, res) => {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
@@ -124,7 +124,7 @@ async function run() {
       const result = await postCollection.find().toArray();
       res.send(result);
     });
-    app.get("/trainer/:id", async (req, res) => {
+    app.get("/trainer/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await trainerCollection.findOne(query);
