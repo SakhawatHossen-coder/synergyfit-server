@@ -8,12 +8,33 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: ["https://synergy-fit.netlify.app", "http://localhost:5173"],
+  origin: [
+    // "https://synergy-fit.netlify.app",
+    "http://localhost:5173",
+  ],
   credentials: true,
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+// app.use((req, res, next) => {
+//   // CORS headers
+//   res.header(
+//     "Access-Control-Allow-Origin",
+//     "https://synergy-fit.netlify.app"
+//     // "http://localhost:5173"
+//   ); // restrict it to the required domain
+//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+//   // Set custom headers for CORS
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Content-type,Accept,X-Custom-Header"
+//   );
+//   if (req.method === "OPTIONS") {
+//     return res.status(200).end();
+//   }
+//   return next();
+// });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_KEY}@cluster0.qkr0gnw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -43,21 +64,73 @@ async function run() {
       res.send({ token });
     });
     //verify Token
+
+    // middlewares
     const verifyToken = (req, res, next) => {
-      console.log("inside verify token", req.headers.authorization);
+      // console.log('inside verify token', req.headers.authorization);
       if (!req.headers.authorization) {
-        return res.status(401).send({ message: "Unauthorize Access!" });
+        return res.status(401).send({ message: "unauthorized access" });
       }
-      let token = req.headers.authorization.split(" ")[1];
-      jwt.verify(token, process.env.TOKEN_KEY, (err, decode) => {
+      const token = req.headers.authorization.split(" ")[1];
+      console.log(token);
+      jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
         if (err) {
-          return res.status(401).send({ message: "Unauthorize Access!" });
+          return res.status(401).send({ message: "unauthorized access" });
         }
-        req.decode;
+        req.decoded = decoded;
         next();
       });
     };
     //
+
+    // Verify Token Middleware
+    // const verifyToken = async (req, res, next) => {
+    //   const token = req.cookies?.token;
+    //   console.log(token);
+    //   if (!token) {
+    //     return res.status(401).send({ message: "unauthorized access" });
+    //   }
+    //   jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
+    //     if (err) {
+    //       console.log(err);
+    //       return res.status(401).send({ message: "unauthorized access" });
+    //     }
+    //     req.user = decoded;
+    //     next();
+    //   });
+    // };
+    //admin
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: "forbidden access" });
+      // }
+
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      let admin = false;
+      if (user) {
+        admin = user?.isAdmin === "Yes";
+      }
+      res.send({ admin });
+    });
+    app.get("/users/trainer/:email", async (req, res) => {
+      const email = req.params.email;
+
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: "forbidden access" });
+      // }
+
+      const query = { email: email };
+      const user = await trainerCollection.findOne(query);
+      let trainer = false;
+      if (user) {
+        trainer = user?.userRole === "Trainer";
+      }
+      res.send({ trainer });
+    });
+
     app.post("/user", async (req, res) => {
       const newUser = req.body;
       const query = { email: newUser?.email };
@@ -100,7 +173,7 @@ async function run() {
       const result = await trainerCollection.insertOne(newTrainer);
       res.send(result);
     });
-    app.get("/trainer", verifyToken, async (req, res) => {
+    app.get("/trainer", async (req, res) => {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
@@ -124,7 +197,7 @@ async function run() {
       const result = await postCollection.find().toArray();
       res.send(result);
     });
-    app.get("/trainer/:id", verifyToken, async (req, res) => {
+    app.get("/trainer/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await trainerCollection.findOne(query);
@@ -141,7 +214,7 @@ async function run() {
       const result = await trainerCollection.updateOne(query, updateDoc);
       res.send(result);
     });
-    app.delete("/trainer/delete/:email", verifyToken, async (req, res) => {
+    app.delete("/trainer/delete/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const result = await trainerCollection.deleteOne(query);
