@@ -112,10 +112,14 @@ async function run() {
       const query = { email: email };
       const user = await userCollection.findOne(query);
       let admin = false;
+      let member = false;
       if (user) {
         admin = user?.isAdmin === "Yes";
       }
-      res.send({ admin });
+      if (user) {
+        member = user?.isAdmin === "No";
+      }
+      res.send({ admin, member });
     });
     app.get("/users/trainer/:email", async (req, res) => {
       const email = req.params.email;
@@ -155,6 +159,12 @@ async function run() {
     });
     app.get("/class", async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/recommend-class", async (req, res) => {
+      const result = await classCollection
+        .find({ Tags: { $eq: "Yoga" } })
+        .toArray();
       res.send(result);
     });
     //update a user role
@@ -248,6 +258,14 @@ async function run() {
         $set: { ...user, timestamp: Date.now() },
       };
       const result = await trainerCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+    app.get("/trainer/:name/:email", async (req, res) => {
+      const email = req.params.email;
+      // return console.log(email);
+      const query = { email: email };
+      const result = await trainerCollection.find(query).toArray();
+      // console.log(result);
       res.send(result);
     });
     app.delete("/trainer/delete/:email", async (req, res) => {
