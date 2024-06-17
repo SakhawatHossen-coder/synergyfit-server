@@ -206,10 +206,18 @@ async function run() {
       const result = await postCollection.insertOne(post);
       res.send(result);
     });
-    //slot 
+    //slot
     app.post("/slotpost", async (req, res) => {
       const slot = req.body;
       const result = await slotCollection.insertOne(slot);
+      res.send(result);
+    });
+    app.get("/trainer-slot/:name/:email", async (req, res) => {
+      const email = req.params.email;
+      // return console.log(email);
+      const query = { email: email };
+      const result = await slotCollection.find(query).toArray();
+      // console.log(result);
       res.send(result);
     });
     // payment intent
