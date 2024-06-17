@@ -55,6 +55,7 @@ async function run() {
     const postCollection = db.collection("posts");
     const trainerCollection = db.collection("trainers");
     const gymtrainerCollection = db.collection("gymtrainers");
+    const slotCollection = db.collection("slots");
     const newsltterCollection = db.collection("newsletters");
     const classCollection = db.collection("classes");
     const paymentCollection = db.collection("payments");
@@ -203,6 +204,12 @@ async function run() {
     app.post("/forumpost", async (req, res) => {
       const post = req.body;
       const result = await postCollection.insertOne(post);
+      res.send(result);
+    });
+    //slot 
+    app.post("/slotpost", async (req, res) => {
+      const slot = req.body;
+      const result = await slotCollection.insertOne(slot);
       res.send(result);
     });
     // payment intent
