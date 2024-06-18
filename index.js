@@ -1,16 +1,16 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 // const cookieParser = require("cookie-parser");
-require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: [
-    // "https://synergy-fit.netlify.app",
+    "https://synergy-fit.netlify.app",
     "http://localhost:5173",
   ],
   credentials: true,
@@ -18,24 +18,24 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
-// app.use((req, res, next) => {
-//   // CORS headers
-//   res.header(
-//     "Access-Control-Allow-Origin",
-//     "https://synergy-fit.netlify.app"
-//     // "http://localhost:5173"
-//   ); // restrict it to the required domain
-//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-//   // Set custom headers for CORS
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Content-type,Accept,X-Custom-Header"
-//   );
-//   if (req.method === "OPTIONS") {
-//     return res.status(200).end();
-//   }
-//   return next();
-// });
+app.use((req, res, next) => {
+  // CORS headers
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://synergy-fit.netlify.app"
+    // "http://localhost:5173"
+  ); // restrict it to the required domain
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  // Set custom headers for CORS
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-type,Accept,X-Custom-Header"
+  );
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  return next();
+});
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_KEY}@cluster0.qkr0gnw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -62,7 +62,7 @@ async function run() {
 
     //jwt
     app.post("/jwt", async (req, res) => {
-      let user = req.body;
+      const user = req.body;
       const token = jwt.sign(user, process.env.TOKEN_KEY, { expiresIn: "1h" });
       res.send({ token });
     });
@@ -103,7 +103,7 @@ async function run() {
     //   });
     // };
     //admin
-    app.get("/users/admin/:email",verifyToken, async (req, res) => {
+    app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
 
       // if (email !== req.decoded.email) {
@@ -122,7 +122,7 @@ async function run() {
       }
       res.send({ admin, member });
     });
-    app.get("/users/trainer/:email",verifyToken, async (req, res) => {
+    app.get("/users/trainer/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
 
       // if (email !== req.decoded.email) {
@@ -212,7 +212,7 @@ async function run() {
       const result = await slotCollection.insertOne(slot);
       res.send(result);
     });
-    app.get("/trainer-slot/:name/:email",verifyToken, async (req, res) => {
+    app.get("/trainer-slot/:name/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       // return console.log(email);
       const query = { email: email };
@@ -229,7 +229,7 @@ async function run() {
       res.send(result);
     });
     // payment intent
-    app.post("/create-payment-intent",verifyToken, async (req, res) => {
+    app.post("/create-payment-intent", verifyToken, async (req, res) => {
       const { price } = req.body;
 
       const amount = parseInt(price * 100);
@@ -273,7 +273,7 @@ async function run() {
       res.send(result);
     });
     // update a trainer role
-    app.patch("/trainer/update/:email",verifyToken, async (req, res) => {
+    app.patch("/trainer/update/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const query = { email };
