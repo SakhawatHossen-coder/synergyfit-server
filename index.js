@@ -103,7 +103,7 @@ async function run() {
     //   });
     // };
     //admin
-    app.get("/users/admin/:email", async (req, res) => {
+    app.get("/users/admin/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
 
       // if (email !== req.decoded.email) {
@@ -122,7 +122,7 @@ async function run() {
       }
       res.send({ admin, member });
     });
-    app.get("/users/trainer/:email", async (req, res) => {
+    app.get("/users/trainer/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
 
       // if (email !== req.decoded.email) {
@@ -186,7 +186,7 @@ async function run() {
       const result = await trainerCollection.insertOne(newTrainer);
       res.send(result);
     });
-    app.get("/trainer", async (req, res) => {
+    app.get("/trainer",verifyToken, async (req, res) => {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
@@ -212,7 +212,7 @@ async function run() {
       const result = await slotCollection.insertOne(slot);
       res.send(result);
     });
-    app.get("/trainer-slot/:name/:email", async (req, res) => {
+    app.get("/trainer-slot/:name/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       // return console.log(email);
       const query = { email: email };
@@ -220,8 +220,16 @@ async function run() {
       // console.log(result);
       res.send(result);
     });
+    app.get("/trainer-details/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      // return console.log(email);
+      const query = { email: email };
+      const result = await trainerCollection.find(query).toArray();
+      // console.log(result);
+      res.send(result);
+    });
     // payment intent
-    app.post("/create-payment-intent", async (req, res) => {
+    app.post("/create-payment-intent",verifyToken, async (req, res) => {
       const { price } = req.body;
 
       const amount = parseInt(price * 100);
@@ -265,7 +273,7 @@ async function run() {
       res.send(result);
     });
     // update a trainer role
-    app.patch("/trainer/update/:email", async (req, res) => {
+    app.patch("/trainer/update/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const query = { email };
