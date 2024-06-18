@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: [
-    "https://synergy-fit.netlify.app",
+    // "https://synergy-fit.netlify.app",
     "http://localhost:5173",
   ],
   credentials: true,
@@ -22,8 +22,8 @@ app.use((req, res, next) => {
   // CORS headers
   res.header(
     "Access-Control-Allow-Origin",
-    "https://synergy-fit.netlify.app"
-    // "http://localhost:5173"
+    "http://localhost:5173"
+    // "https://synergy-fit.netlify.app",
   ); // restrict it to the required domain
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
   // Set custom headers for CORS
@@ -75,7 +75,7 @@ async function run() {
         return res.status(401).send({ message: "unauthorized access" });
       }
       const token = req.headers.authorization.split(" ")[1];
-      console.log(token);
+      // console.log(token);
       jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
         if (err) {
           return res.status(401).send({ message: "unauthorized access" });
@@ -86,29 +86,9 @@ async function run() {
     };
     //
 
-    // Verify Token Middleware
-    // const verifyToken = async (req, res, next) => {
-    //   const token = req.cookies?.token;
-    //   console.log(token);
-    //   if (!token) {
-    //     return res.status(401).send({ message: "unauthorized access" });
-    //   }
-    //   jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
-    //     if (err) {
-    //       console.log(err);
-    //       return res.status(401).send({ message: "unauthorized access" });
-    //     }
-    //     req.user = decoded;
-    //     next();
-    //   });
-    // };
     //admin
     app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-
-      // if (email !== req.decoded.email) {
-      //   return res.status(403).send({ message: "forbidden access" });
-      // }
 
       const query = { email: email };
       const user = await userCollection.findOne(query);
@@ -124,10 +104,6 @@ async function run() {
     });
     app.get("/users/trainer/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-
-      // if (email !== req.decoded.email) {
-      //   return res.status(403).send({ message: "forbidden access" });
-      // }
 
       const query = { email: email };
       const user = await trainerCollection.findOne(query);
@@ -186,7 +162,7 @@ async function run() {
       const result = await trainerCollection.insertOne(newTrainer);
       res.send(result);
     });
-    app.get("/trainer",verifyToken, async (req, res) => {
+    app.get("/trainer", verifyToken, async (req, res) => {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
@@ -212,7 +188,7 @@ async function run() {
       const result = await slotCollection.insertOne(slot);
       res.send(result);
     });
-    app.get("/trainer-slot/:name/:email", verifyToken, async (req, res) => {
+    app.get("/trainer-slot/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       // return console.log(email);
       const query = { email: email };
@@ -261,6 +237,10 @@ async function run() {
 
       // res.send({ paymentResult, deleteResult });
       res.send(paymentResult);
+    });
+    app.get("/payments", async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
     });
     app.get("/post", async (req, res) => {
       const result = await postCollection.find().toArray();
