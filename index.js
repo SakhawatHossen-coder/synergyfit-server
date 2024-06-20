@@ -89,7 +89,6 @@ async function run() {
     //admin
     app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-
       const query = { email: email };
       const user = await userCollection.findOne(query);
       let admin = false;
@@ -225,7 +224,6 @@ async function run() {
       const payment = req.body;
       const paymentResult = await paymentCollection.insertOne(payment);
 
-      
       res.send(paymentResult);
     });
     app.get("/payments", async (req, res) => {
@@ -265,6 +263,28 @@ async function run() {
       const email = req.params.email;
       const query = { email };
       const result = await trainerCollection.deleteOne(query);
+      res.send(result);
+    });
+    //
+    app.get("/class-count", async (req, res) => {
+      const count = await classCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
+    app.get("/classes", async (req, res) => {
+      const searchTerm = req.query.term || ""; // Get search term from query parameter
+      const search = req.query.search || "";
+      const filter = req.query;
+      const query = {
+        className: { $regex: filter.search, $options: "i" },
+      };
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      //  console.log("pagination query", page, size);
+      const result = await classCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
     // Send a ping to confirm a successful connection
