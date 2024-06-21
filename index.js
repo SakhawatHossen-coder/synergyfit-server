@@ -287,6 +287,12 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    app.delete("/trainer-slot/delete/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const result = await slotCollection.deleteOne(query);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
