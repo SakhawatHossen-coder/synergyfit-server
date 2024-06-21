@@ -127,6 +127,10 @@ async function run() {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
+    app.get("/registered-user", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
     //gym classes
     app.post("/classes", async (req, res) => {
       const newClasses = req.body;
@@ -135,6 +139,12 @@ async function run() {
     });
     app.get("/class", async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/trainer-class/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await classCollection.find(query).toArray();
       res.send(result);
     });
     app.get("/recommend-class", async (req, res) => {
@@ -161,7 +171,7 @@ async function run() {
       const result = await trainerCollection.insertOne(newTrainer);
       res.send(result);
     });
-    app.get("/trainer", verifyToken, async (req, res) => {
+    app.get("/trainer", async (req, res) => {
       const result = await trainerCollection.find().toArray();
       res.send(result);
     });
