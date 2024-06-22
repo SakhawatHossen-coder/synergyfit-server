@@ -10,8 +10,8 @@ const port = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: [
-    // "https://synergy-fit.netlify.app",
-    "http://localhost:5173",
+    "https://synergy-fit.netlify.app",
+    // "http://localhost:5173",
   ],
   credentials: true,
   optionSuccessStatus: 200,
@@ -22,8 +22,8 @@ app.use((req, res, next) => {
   // CORS headers
   res.header(
     "Access-Control-Allow-Origin",
-    "http://localhost:5173"
-    // "https://synergy-fit.netlify.app",
+    // "http://localhost:5173"
+    "https://synergy-fit.netlify.app",
   ); // restrict it to the required domain
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
   // Set custom headers for CORS
@@ -139,6 +139,13 @@ async function run() {
     });
     app.get("/class", async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/feature-class", async (req, res) => {
+      const result = await classCollection
+        .find()
+        .sort({ bookCount: -1 })
+        .toArray();
       res.send(result);
     });
     app.get("/trainer-class/:email", verifyToken, async (req, res) => {
